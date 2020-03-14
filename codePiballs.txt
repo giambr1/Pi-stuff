@@ -1,0 +1,67 @@
+(* mathematica code *)
+
+ClearAll["Global`*"]
+
+(* Distance of the 2nd ball from the wall *) dist2w=-1;
+(* time resolution *) tstep=0.1;
+(* relation between the 2 masses *) m1=k m2;
+(* defining the ratio between the two masses, with ratio you can obtain Sqrt[ratio]*Pi *) ratio=1;
+(* this is the precision of the aproximation, it must be power of 100*) digit=(100)^(2);
+k=ratio*digit;
+(* 1st ball initial velocity *) v1=1/m1;
+(*Print["v1= ",v1];*)v2=0;
+(*Print["v2= ", v2];*)i=0;
+l=1;
+(* initail positions *) x1=dist2w;
+x2=dist2w;
+(* wall position *) xw=0;
+thit[0]=0; 
+XX1[0]=x1;
+XX2[0]=x2;
+
+While[Assuming[m2>0,Refine[ Not[v1<=v2<= 0 && v1<= 0 && v2<= 0]]],
+(*Print["collision ball1-ball2"];*)
+(*Print["bella"];*)
+s2=Solve[m1 a+m2 b == m1 v1 + m2 v2,b][[1]];
+s1=Solve[m1 a^2 + m2 (b/.s2)^2==1/m1 && a != v1,a][[1]];
+v1=(a/.s1)/.s2;
+(*Print["v1= ",v1];*)
+v2=(b/.s2)/.s1;
+(*Print[v1,v2];*)
+i=i+1;
+VV1[i]=v1;
+VV2[i]=v2;
+If[Assuming[m2>0,Refine[Not[v2==0]]],
+thit[i]=thit[i-1]+(xw-x2)/v2;
+(*Print[thit[i]];*)
+x2=xw;
+XX2[i]=x2;
+x1=x1+v1 (thit[i]-thit[i-1]);
+XX1[i]=x1];
+If[Assuming[m2>0,Refine[v2>0]],
+	(*Print["ciao"];*)
+	v2=-v2;
+	(*Print[v1,v2];*)
+	i=i+1;
+	VV1[i]=v1; 
+	VV2[i]=v2;
+	thit[i]=thit[i-1]+(x2-x1)/(v1-v2);
+	(*Print[thit[i]];*)
+	x2=x2+v2 (thit[i]-thit[i-1]);
+	XX2[i]=x2;
+	x1=x1+v1 (thit[i]-thit[i-1]);
+	XX1[i]=x1;]
+	(*Print["v2= ",-v2];*)
+	(*If[l\[LessEqual]i\[LessEqual] l+2,Print[i]; l=l+400]*)
+]
+
+Print[i , " collisions"];
+
+V1=Table[VV1[m],{m,1,i}];
+V2=Table[VV2[m],{m,1,i}];
+X1=Table[XX1[m],{m,0,i-1}];
+X2=Table[XX2[m],{m,0,i-1}];
+Thit=Table[thit[m],{m,0,i-1}];
+
+
+ListAnimate[Table[ImageRotate[Show[ListPlot[{X2[[m]]}/.{m2->1}, PlotMarkers->{Automatic,20}, PlotRange->{{0.9,1.1},{Mean[X2]-1,1}},Axes->{True,False},Ticks->None],ListPlot[{X1[[m]]}/.{m2->1},PlotMarkers->{Automatic,20},PlotStyle->{Red,Opacity[0.3]},Axes->{True,False},Ticks->None, PlotRange->{{0.9,1.1},{Mean[X2]-1,1}}]]],{m,1,i,1}],AnimationRate->10]
